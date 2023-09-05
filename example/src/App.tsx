@@ -29,7 +29,7 @@ export default function App() {
             name: 'name 2',
           },
         ]}
-      ></Table>
+      />
     </View>
   );
 }

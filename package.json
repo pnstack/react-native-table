@@ -40,13 +40,13 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/npv2k1/pnstack-react-react-native-table",
+  "repository": "https://github.com/pnstack/pnstack-react-react-native-table",
   "author": "Phạm Văn Nguyên <npv2k1@gmail.com> (https://github.com/npv2k1)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/npv2k1/pnstack-react-react-native-table/issues"
+    "url": "https://github.com/pnstack/pnstack-react-react-native-table/issues"
   },
-  "homepage": "https://github.com/npv2k1/pnstack-react-react-native-table#readme",
+  "homepage": "https://github.com/pnstack/pnstack-react-react-native-table#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

@@ -38,7 +38,7 @@ const Table = ({
     const groupedData = lodashGroupBy(dataSource, groupBy);
     return (
       <View>
-        {Object.keys(groupedData).map((key, index) => (
+        {Object.keys(groupedData).map((key) => (
           <Table
             key={key}
             dataSource={groupedData[key] as any[]}
