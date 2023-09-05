@@ -5,7 +5,7 @@ React native table component
 ## Installation
 
 ```sh
-yarn install @pnstack/react-native-table
+yarn add @pnstack/react-native-table
 ```
 
 ## Usage
