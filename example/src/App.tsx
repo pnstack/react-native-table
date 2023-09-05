@@ -1,18 +1,35 @@
 import * as React from 'react';
 
-import { StyleSheet, View, Text } from 'react-native';
-import { multiply } from '@pnstack/react-react-native-table';
+import { StyleSheet, View } from 'react-native';
+import { Table } from '@pnstack/react-react-native-table';
 
 export default function App() {
-  const [result, setResult] = React.useState<number | undefined>();
-
-  React.useEffect(() => {
-    multiply(3, 7).then(setResult);
-  }, []);
-
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <Table
+        columns={[
+          {
+            title: 'id',
+            key: 'id',
+            dataIndex: 'id',
+          },
+          {
+            title: 'Name',
+            key: 'name',
+            dataIndex: 'name',
+          },
+        ]}
+        dataSource={[
+          {
+            id: 1,
+            name: 'name 1',
+          },
+          {
+            id: 2,
+            name: 'name 2',
+          },
+        ]}
+      ></Table>
     </View>
   );
 }
