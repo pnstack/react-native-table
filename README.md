@@ -11,11 +11,30 @@ npm install @pnstack/react-react-native-table
 ## Usage
 
 ```js
-import { multiply } from '@pnstack/react-react-native-table';
-
-// ...
-
-const result = await multiply(3, 7);
+<Table
+  columns={[
+    {
+      title: 'id',
+      key: 'id',
+      dataIndex: 'id',
+    },
+    {
+      title: 'Name',
+      key: 'name',
+      dataIndex: 'name',
+    },
+  ]}
+  dataSource={[
+    {
+      id: 1,
+      name: 'name 1',
+    },
+    {
+      id: 2,
+      name: 'name 2',
+    },
+  ]}
+/>
 ```
 
 ## Contributing
