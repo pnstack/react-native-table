@@ -1,6 +1,7 @@
 {
   "name": "@pnstack/react-react-native-table",
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "private": false,
   "description": "React native table component",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
