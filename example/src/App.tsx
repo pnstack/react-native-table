@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { StyleSheet, View } from 'react-native';
-import { Table } from '@pnstack/react-react-native-table';
+import { Table } from '@pnstack/react-native-table';
 
 export default function App() {
   return (

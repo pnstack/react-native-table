@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@pnstack/react-react-native-table": ["./src/index"]
+      "@pnstack/react-native-table": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
