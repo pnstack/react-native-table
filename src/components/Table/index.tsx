@@ -1,3 +1,3 @@
-import Table, { type Column, type TableProps } from './Table';
+import Table from './Table';
+export * from './Table.types';
 export { Table };
-export type { Column, TableProps };

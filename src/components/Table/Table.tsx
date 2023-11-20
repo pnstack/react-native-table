@@ -1,36 +1,12 @@
 import { groupBy as lodashGroupBy } from 'lodash';
-import React, { type ForwardedRef, Fragment, forwardRef, memo } from 'react';
-import type { TextStyle } from 'react-native';
+import React, { Fragment, forwardRef, memo, type ForwardedRef } from 'react';
 import {
-  type StyleProp,
-  View,
+  ScrollView,
   Text,
   TouchableOpacity,
-  type ViewStyle,
+  View
 } from 'react-native';
-
-export type Column = {
-  title: string;
-  key: string;
-  style?: StyleProp<ViewStyle> | undefined;
-  titleStyle?: StyleProp<TextStyle> | undefined;
-  headerStyle?: StyleProp<ViewStyle> | undefined;
-  dataIndex?: string;
-  render?: (item: any) => React.ReactNode;
-  renderTitle?: (title: string, style?: any) => React.ReactNode;
-};
-
-export type TableProps = {
-  dataSource?: any[];
-  columns: Column[];
-  groupBy?: string;
-  layout?: 'vertical' | 'horizontal';
-  renderHeader?: (columns: Column[]) => React.ReactNode;
-  headerStyle?: StyleProp<ViewStyle> | undefined;
-  rowStyle?: StyleProp<ViewStyle> | undefined;
-  onRow?: (record: any, index: number) => void;
-};
-export type TableRef = {};
+import type { TableProps, TableRef } from './Table.types';
 
 const Table = forwardRef(
   (
@@ -43,6 +19,7 @@ const Table = forwardRef(
       headerStyle,
       rowStyle,
       onRow,
+      style,
     }: TableProps,
     ref?: ForwardedRef<TableRef | undefined> | undefined
   ) => {
@@ -59,11 +36,14 @@ const Table = forwardRef(
 
     return (
       <View
-        style={{
-          flexDirection: layout == 'horizontal' ? 'row' : 'column',
-          display: 'flex',
-          flex: 1,
-        }}
+        style={[
+          {
+            flexDirection: layout == 'horizontal' ? 'row' : 'column',
+            display: 'flex',
+            flex: 1,
+          },
+          style,
+        ]}
       >
         {renderHeader ? (
           renderHeader(columns)
@@ -94,34 +74,36 @@ const Table = forwardRef(
           </View>
         )}
 
-        {dataSource &&
-          dataSource.map((item, ridx) => (
-            <TouchableOpacity
-              key={ridx}
-              onPress={() => {
-                onRow && onRow(item, ridx);
-              }}
-              style={[
-                {
-                  flex: 1,
-                  flexDirection: layout == 'horizontal' ? 'column' : 'row',
-                },
-                rowStyle,
-              ]}
-            >
-              {columns.map((column, cidx) => (
-                <View key={cidx} style={[{ flex: 1 }, column.style]}>
-                  {column.render ? (
-                    column.render(
-                      column.dataIndex ? item[column.dataIndex] : item
-                    )
-                  ) : (
-                    <Text>{item[column.key]}</Text>
-                  )}
-                </View>
-              ))}
-            </TouchableOpacity>
-          ))}
+        <ScrollView horizontal={layout === 'horizontal'}>
+          {dataSource &&
+            dataSource.map((item, ridx) => (
+              <TouchableOpacity
+                key={ridx}
+                onPress={() => {
+                  onRow && onRow(item, ridx);
+                }}
+                style={[
+                  {
+                    flex: 1,
+                    flexDirection: layout == 'horizontal' ? 'column' : 'row',
+                  },
+                  rowStyle,
+                ]}
+              >
+                {columns.map((column, cidx) => (
+                  <View key={cidx} style={[{ flex: 1 }, column.style]}>
+                    {column.render ? (
+                      column.render(
+                        column.dataIndex ? item[column.dataIndex] : item
+                      )
+                    ) : (
+                      <Text>{item[column.key]}</Text>
+                    )}
+                  </View>
+                ))}
+              </TouchableOpacity>
+            ))}
+        </ScrollView>
       </View>
     );
   }
