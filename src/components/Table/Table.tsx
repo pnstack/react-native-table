@@ -1,17 +1,20 @@
 import { groupBy as lodashGroupBy } from 'lodash';
-import React, { memo } from 'react';
-import type { StyleProp, ViewStyle } from 'react-native';
-import { StyleSheet, Text, View } from 'react-native';
-
-export type renderFormatCellProps = {
-  value: number;
-  unit?: string;
-};
+import React, { type ForwardedRef, Fragment, forwardRef, memo } from 'react';
+import type { TextStyle } from 'react-native';
+import {
+  type StyleProp,
+  View,
+  Text,
+  TouchableOpacity,
+  type ViewStyle,
+} from 'react-native';
 
 export type Column = {
   title: string;
   key: string;
   style?: StyleProp<ViewStyle> | undefined;
+  titleStyle?: StyleProp<TextStyle> | undefined;
+  headerStyle?: StyleProp<ViewStyle> | undefined;
   dataIndex?: string;
   render?: (item: any) => React.ReactNode;
   renderTitle?: (title: string, style?: any) => React.ReactNode;
@@ -23,111 +26,109 @@ export type TableProps = {
   groupBy?: string;
   layout?: 'vertical' | 'horizontal';
   renderHeader?: (columns: Column[]) => React.ReactNode;
-  headerStyle?: any;
+  headerStyle?: StyleProp<ViewStyle> | undefined;
+  rowStyle?: StyleProp<ViewStyle> | undefined;
+  onRow?: (record: any, index: number) => void;
+  rowSwipeableLeft?: (record: any, index: number) => React.ReactNode;
+  rowSwipeableRight?: (record: any, index: number) => React.ReactNode;
 };
+export type TableRef = {};
 
-const Table = ({
-  dataSource,
-  columns,
-  groupBy,
-  layout,
-  renderHeader,
-  headerStyle,
-}: TableProps) => {
-  if (groupBy) {
-    const groupedData = lodashGroupBy(dataSource, groupBy);
+const Table = forwardRef(
+  (
+    {
+      dataSource,
+      columns,
+      groupBy,
+      layout = 'vertical',
+      renderHeader,
+      headerStyle,
+      rowStyle,
+      onRow,
+      rowSwipeableLeft,
+      rowSwipeableRight,
+    }: TableProps,
+    ref?: ForwardedRef<TableRef | undefined> | undefined
+  ) => {
+    if (groupBy) {
+      const groupedData = lodashGroupBy(dataSource, groupBy);
+      return (
+        <View style={{ width: '100%', height: '100%' }}>
+          {Object.keys(groupedData).map((key, index) => (
+            <Table key={key} dataSource={groupedData[key]} columns={columns} />
+          ))}
+        </View>
+      );
+    }
+
     return (
-      <View>
-        {Object.keys(groupedData).map((key) => (
-          <Table
-            key={key}
-            dataSource={groupedData[key] as any[]}
-            columns={columns}
-          />
-        ))}
-      </View>
-    );
-  }
-
-  if (layout === 'horizontal') {
-    return (
-      <View>
-        {columns.map((column, cidx) => (
-          <View key={cidx} style={[styles.rowHorizontal, column.style]}>
-            {column.renderTitle ? (
-              column.renderTitle(column.title, column.style)
-            ) : (
-              <Text style={[{ flex: 1 }]}>{column.title}</Text>
-            )}
-
-            {dataSource.map((item, ridx) => (
+      <View
+        style={{
+          flexDirection: layout == 'horizontal' ? 'row' : 'column',
+          display: 'flex',
+          flex: 1,
+        }}
+      >
+        {renderHeader ? (
+          renderHeader(columns)
+        ) : (
+          <View
+            style={[
+              {
+                flexDirection: layout == 'horizontal' ? 'column' : 'row',
+                flex: layout === 'vertical' ? 1 : undefined,
+              },
+              headerStyle,
+            ]}
+          >
+            {columns.map((column, cidx) => (
               <View
-                key={ridx}
-                style={[{ flex: 1, alignItems: 'flex-end' }, column.style]}
+                key={cidx}
+                style={[{ flex: 1 }, column.style, column.headerStyle]}
               >
+                {column.renderTitle ? (
+                  <Fragment key={cidx}>
+                    {column.renderTitle(column.title)}
+                  </Fragment>
+                ) : (
+                  <View>
+                    <Text style={[column.titleStyle]}>{column.title}</Text>
+                  </View>
+                )}
+              </View>
+            ))}
+          </View>
+        )}
+
+        {dataSource.map((item, ridx) => (
+          <TouchableOpacity
+            key={ridx}
+            onPress={() => {
+              onRow && onRow(item, ridx);
+            }}
+            style={[
+              {
+                flex: 1,
+                flexDirection: layout == 'horizontal' ? 'column' : 'row',
+              },
+              rowStyle,
+            ]}
+          >
+            {columns.map((column, cidx) => (
+              <View key={cidx} style={[{ flex: 1 }, column.style]}>
                 {column.render ? (
                   column.render(
                     column.dataIndex ? item[column.dataIndex] : item
                   )
                 ) : (
-                  <Text>{item[column.key] || '_'}</Text>
+                  <Text>{item[column.key]}</Text>
                 )}
               </View>
             ))}
-          </View>
+          </TouchableOpacity>
         ))}
       </View>
     );
   }
-
-  return (
-    <View>
-      {renderHeader ? (
-        renderHeader(columns)
-      ) : (
-        <View style={[styles.header, headerStyle]}>
-          {columns.map((column, cidx) => (
-            <View key={cidx} style={[{ flex: 1 }, column.style]}>
-              <Text>{column.title}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-      {dataSource.map((item, ridx) => (
-        <View key={ridx} style={styles.row}>
-          {columns.map((column, cidx) => (
-            <View key={cidx} style={[{ flex: 1 }, column.style]}>
-              {column.render ? (
-                column.render(column.dataIndex ? item[column.dataIndex] : item)
-              ) : (
-                <Text>{item[column.key]}</Text>
-              )}
-            </View>
-          ))}
-        </View>
-      ))}
-    </View>
-  );
-};
-
+);
 export default memo(Table);
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  rowHorizontal: {
-    flexDirection: 'row',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    alignItems: 'center',
-  },
-  header: {
-    flexDirection: 'row',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    width: '100%',
-  },
-});
