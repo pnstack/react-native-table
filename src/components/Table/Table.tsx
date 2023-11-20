@@ -21,7 +21,7 @@ export type Column = {
 };
 
 export type TableProps = {
-  dataSource: any[];
+  dataSource?: any[];
   columns: Column[];
   groupBy?: string;
   layout?: 'vertical' | 'horizontal';
@@ -29,8 +29,6 @@ export type TableProps = {
   headerStyle?: StyleProp<ViewStyle> | undefined;
   rowStyle?: StyleProp<ViewStyle> | undefined;
   onRow?: (record: any, index: number) => void;
-  rowSwipeableLeft?: (record: any, index: number) => React.ReactNode;
-  rowSwipeableRight?: (record: any, index: number) => React.ReactNode;
 };
 export type TableRef = {};
 
@@ -45,8 +43,6 @@ const Table = forwardRef(
       headerStyle,
       rowStyle,
       onRow,
-      rowSwipeableLeft,
-      rowSwipeableRight,
     }: TableProps,
     ref?: ForwardedRef<TableRef | undefined> | undefined
   ) => {
@@ -54,7 +50,7 @@ const Table = forwardRef(
       const groupedData = lodashGroupBy(dataSource, groupBy);
       return (
         <View style={{ width: '100%', height: '100%' }}>
-          {Object.keys(groupedData).map((key, index) => (
+          {Object.keys(groupedData).map((key) => (
             <Table key={key} dataSource={groupedData[key]} columns={columns} />
           ))}
         </View>
@@ -87,46 +83,45 @@ const Table = forwardRef(
                 style={[{ flex: 1 }, column.style, column.headerStyle]}
               >
                 {column.renderTitle ? (
-                  <Fragment key={cidx}>
-                    {column.renderTitle(column.title)}
-                  </Fragment>
+                  <Fragment>{column.renderTitle(column.title)}</Fragment>
                 ) : (
-                  <View>
+                  <>
                     <Text style={[column.titleStyle]}>{column.title}</Text>
-                  </View>
+                  </>
                 )}
               </View>
             ))}
           </View>
         )}
 
-        {dataSource.map((item, ridx) => (
-          <TouchableOpacity
-            key={ridx}
-            onPress={() => {
-              onRow && onRow(item, ridx);
-            }}
-            style={[
-              {
-                flex: 1,
-                flexDirection: layout == 'horizontal' ? 'column' : 'row',
-              },
-              rowStyle,
-            ]}
-          >
-            {columns.map((column, cidx) => (
-              <View key={cidx} style={[{ flex: 1 }, column.style]}>
-                {column.render ? (
-                  column.render(
-                    column.dataIndex ? item[column.dataIndex] : item
-                  )
-                ) : (
-                  <Text>{item[column.key]}</Text>
-                )}
-              </View>
-            ))}
-          </TouchableOpacity>
-        ))}
+        {dataSource &&
+          dataSource.map((item, ridx) => (
+            <TouchableOpacity
+              key={ridx}
+              onPress={() => {
+                onRow && onRow(item, ridx);
+              }}
+              style={[
+                {
+                  flex: 1,
+                  flexDirection: layout == 'horizontal' ? 'column' : 'row',
+                },
+                rowStyle,
+              ]}
+            >
+              {columns.map((column, cidx) => (
+                <View key={cidx} style={[{ flex: 1 }, column.style]}>
+                  {column.render ? (
+                    column.render(
+                      column.dataIndex ? item[column.dataIndex] : item
+                    )
+                  ) : (
+                    <Text>{item[column.key]}</Text>
+                  )}
+                </View>
+              ))}
+            </TouchableOpacity>
+          ))}
       </View>
     );
   }
