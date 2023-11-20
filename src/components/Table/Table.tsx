@@ -1,11 +1,12 @@
 import { groupBy as lodashGroupBy } from 'lodash';
-import React, { Fragment, forwardRef, memo, type ForwardedRef } from 'react';
-import {
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import React, {
+  Fragment,
+  forwardRef,
+  memo,
+  type ForwardedRef,
+  useImperativeHandle,
+} from 'react';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import type { TableProps, TableRef } from './Table.types';
 
 const Table = forwardRef(
@@ -23,6 +24,10 @@ const Table = forwardRef(
     }: TableProps,
     ref?: ForwardedRef<TableRef | undefined> | undefined
   ) => {
+    // implement ref
+    useImperativeHandle(ref, () => {
+      return {};
+    });
     if (groupBy) {
       const groupedData = lodashGroupBy(dataSource, groupBy);
       return (
