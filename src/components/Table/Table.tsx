@@ -45,7 +45,7 @@ const Table = forwardRef(
           {
             flexDirection: layout == 'horizontal' ? 'row' : 'column',
             display: 'flex',
-            flex: 1,
+            width: '100%',
           },
           style,
         ]}
@@ -65,7 +65,12 @@ const Table = forwardRef(
             {columns.map((column, cidx) => (
               <View
                 key={cidx}
-                style={[{ flex: 1 }, column.style, column.headerStyle]}
+                style={[
+                  { flex: layout == 'horizontal' ? 0 : 1 },
+
+                  column.style,
+                  column.headerStyle,
+                ]}
               >
                 {column.renderTitle ? (
                   <Fragment>{column.renderTitle(column.title)}</Fragment>
@@ -96,7 +101,13 @@ const Table = forwardRef(
                 ]}
               >
                 {columns.map((column, cidx) => (
-                  <View key={cidx} style={[{ flex: 1 }, column.style]}>
+                  <View
+                    key={cidx}
+                    style={[
+                      { flex: layout == 'horizontal' ? 0 : 1 },
+                      column.style,
+                    ]}
+                  >
                     {column.render ? (
                       column.render(
                         column.dataIndex ? item[column.dataIndex] : item
