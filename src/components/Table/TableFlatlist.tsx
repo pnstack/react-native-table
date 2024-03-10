@@ -1,4 +1,4 @@
-import React, { forwardRef, Fragment, memo, useCallback } from 'react';
+import React, { forwardRef, Fragment, memo, useCallback, useMemo } from 'react';
 import { FlatList, RefreshControl, Text, View } from 'react-native';
 
 import type { Column, TableFlatListProps, TableRef } from './Table.types';
@@ -8,57 +8,51 @@ export type NoDataProps = ViewProps & {
   message?: string | null | undefined;
 };
 
-const NoData = ({ message }: NoDataProps) => {
-  return (
-    <View>
-      <Text>{message}</Text>
-    </View>
-  );
-};
+const noDataSource = [{ id: 'no_data', type: 'no_data' }];
+
+const NoData = ({ message }: NoDataProps) => (
+  <View>
+    <Text>{message}</Text>
+  </View>
+);
 
 export const isNullOrUndefined = (data?: any): data is null | undefined =>
   data === null || data === undefined;
 
 const RowItem = memo(
-  forwardRef(({ item, index, columns, rowStyle, layout }: any, ref) => {
-    return (
-      <View
-        style={[
-          {
-            flex: layout === 'vertical' ? 1 : undefined,
-            flexDirection: layout === 'horizontal' ? 'column' : 'row',
-          },
-          rowStyle
-            ? typeof rowStyle === 'function'
-              ? rowStyle(item, index)
-              : rowStyle
-            : {},
-        ]}
-      >
-        {columns.map((column: Column, cidx: React.Key | null | undefined) => (
-          <View
-            key={cidx}
-            style={[{ flex: layout == 'horizontal' ? 0 : 1 }, column.style]}
-          >
-            {column.render ? (
-              column.render(
-                column.dataIndex ? item[column.dataIndex] : item,
-                index
-              )
-            ) : (
-              <Text>{item[column.key]}</Text>
-            )}
-          </View>
-        ))}
-      </View>
-    );
-  })
+  forwardRef(({ item, index, columns, rowStyle, layout }: any, ref) => (
+    <View
+      style={[
+        {
+          flex: layout === 'vertical' ? 1 : undefined,
+          flexDirection: layout === 'horizontal' ? 'column' : 'row',
+        },
+        rowStyle
+          ? typeof rowStyle === 'function'
+            ? rowStyle(item, index)
+            : rowStyle
+          : {},
+      ]}
+    >
+      {columns.map((column: Column, cidx: React.Key | null | undefined) => (
+        <View
+          key={cidx}
+          style={[{ flex: layout == 'horizontal' ? 0 : 1 }, column.style]}
+        >
+          {column.render ? (
+            column.render(item[column.dataIndex ?? column.key], index)
+          ) : (
+            <Text>{item[column.key]}</Text>
+          )}
+        </View>
+      ))}
+    </View>
+  ))
 );
-
 const TableFlatlist = forwardRef(
   (
     {
-      dataSource,
+      dataSource: originalDataSource,
       columns,
       groupBy,
       layout,
@@ -76,13 +70,15 @@ const TableFlatlist = forwardRef(
     }: TableFlatListProps,
     ref?: React.Ref<TableRef | undefined> | undefined
   ) => {
-    const isNoDataSource =
-      (isNullOrUndefined(isNoData) && dataSource.length === 0) ||
-      (!isNullOrUndefined(isNoData) && isNoData);
+    const isNoDataSource = useMemo(
+      () =>
+        (isNullOrUndefined(isNoData) && originalDataSource.length === 0) ||
+        (!isNullOrUndefined(isNoData) && isNoData),
+      [isNoData, originalDataSource]
+    );
+    const dataSource = isNoDataSource ? noDataSource : originalDataSource;
 
-    dataSource = isNoDataSource ? noDataSource : dataSource;
     const flatListPropsInner = { ...flatListProps };
-
     if (!flatListPropsInner.refreshControl) {
       if (flatListPropsInner.onRefresh) {
         const onRefresh = flatListPropsInner.onRefresh;
@@ -200,5 +196,3 @@ const TableFlatlist = forwardRef(
 );
 
 export default TableFlatlist;
-
-const noDataSource = [{ id: 'no_data', type: 'no_data' }];
