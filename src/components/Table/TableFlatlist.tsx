@@ -1,4 +1,11 @@
-import React, { forwardRef, Fragment, memo, useCallback, useMemo } from 'react';
+import React, {
+  forwardRef,
+  Fragment,
+  memo,
+  useCallback,
+  useImperativeHandle,
+  useMemo,
+} from 'react';
 import { FlatList, RefreshControl, Text, View } from 'react-native';
 
 import type { Column, TableFlatListProps, TableRef } from './Table.types';
@@ -19,42 +26,40 @@ const NoData = ({ message }: NoDataProps) => (
 export const isNullOrUndefined = (data?: any): data is null | undefined =>
   data === null || data === undefined;
 
-const RowItem = memo(
-  forwardRef(({ item, index, columns, rowStyle, layout }: any, ref) => (
-    <View
-      style={[
-        {
-          flex: layout === 'vertical' ? 1 : undefined,
-          flexDirection: layout === 'horizontal' ? 'column' : 'row',
-        },
-        rowStyle
-          ? typeof rowStyle === 'function'
-            ? rowStyle(item, index)
-            : rowStyle
-          : {},
-      ]}
-    >
-      {columns.map((column: Column, cidx: React.Key | null | undefined) => (
-        <View
-          key={cidx}
-          style={[{ flex: layout == 'horizontal' ? 0 : 1 }, column.style]}
-        >
-          {column.render ? (
-            column.render(item[column.dataIndex ?? column.key], index)
-          ) : (
-            <Text>{item[column.key]}</Text>
-          )}
-        </View>
-      ))}
-    </View>
-  ))
-);
+const RowItem = memo(({ item, index, columns, rowStyle, layout }: any) => (
+  <View
+    style={[
+      {
+        flex: layout === 'vertical' ? 1 : undefined,
+        flexDirection: layout === 'horizontal' ? 'column' : 'row',
+      },
+      rowStyle
+        ? typeof rowStyle === 'function'
+          ? rowStyle(item, index)
+          : rowStyle
+        : {},
+    ]}
+  >
+    {columns.map((column: Column, cidx: React.Key | null | undefined) => (
+      <View
+        key={cidx}
+        style={[{ flex: layout == 'horizontal' ? 0 : 1 }, column.style]}
+      >
+        {column.render ? (
+          column.render(item[column.dataIndex ?? column.key], index)
+        ) : (
+          <Text>{item[column.key]}</Text>
+        )}
+      </View>
+    ))}
+  </View>
+));
+
 const TableFlatlist = forwardRef(
   (
     {
       dataSource: originalDataSource,
       columns,
-      groupBy,
       layout,
       renderHeader,
       headerStyle,
@@ -91,6 +96,10 @@ const TableFlatlist = forwardRef(
       delete flatListPropsInner.isRefreshing;
     }
 
+    useImperativeHandle(ref, () => {
+      return {};
+    });
+
     const renderNoDataItem = useCallback(() => {
       if (
         typeof noDataContent === 'string' ||
@@ -102,33 +111,36 @@ const TableFlatlist = forwardRef(
       return noDataContent!;
     }, [noDataContent]);
 
-    const renderItem = useCallback(({ item, index }: any) => {
-      if (renderRow) {
-        return renderRow({
-          record: item,
-          index,
-          children: (
-            <RowItem
-              index={index}
-              item={item}
-              columns={columns}
-              rowStyle={rowStyle}
-              layout={layout}
-            />
-          ),
-        });
-      }
+    const renderItem = useCallback(
+      ({ item, index }: any) => {
+        if (renderRow) {
+          return renderRow({
+            record: item,
+            index,
+            children: (
+              <RowItem
+                index={index}
+                item={item}
+                columns={columns}
+                rowStyle={rowStyle}
+                layout={layout}
+              />
+            ),
+          });
+        }
 
-      return (
-        <RowItem
-          index={index}
-          item={item}
-          columns={columns}
-          rowStyle={rowStyle}
-          layout={layout}
-        />
-      );
-    }, []);
+        return (
+          <RowItem
+            index={index}
+            item={item}
+            columns={columns}
+            rowStyle={rowStyle}
+            layout={layout}
+          />
+        );
+      },
+      [columns, layout, renderRow, rowStyle]
+    );
 
     const keyExtractor = useCallback((item: any, index: any) => {
       return rowKey

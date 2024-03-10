@@ -28,12 +28,17 @@ const Table = forwardRef(
     useImperativeHandle(ref, () => {
       return {};
     });
+
     if (groupBy) {
       const groupedData = lodashGroupBy(dataSource, groupBy);
       return (
         <View style={{ width: '100%', height: '100%' }}>
           {Object.keys(groupedData).map((key) => (
-            <Table key={key} dataSource={groupedData[key]} columns={columns} />
+            <Table
+              key={key}
+              dataSource={groupedData[key] as any}
+              columns={columns}
+            />
           ))}
         </View>
       );

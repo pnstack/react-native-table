@@ -41,7 +41,7 @@ export type Column<T = any> = {
    * @param item The data item for the row.
    * @returns The rendered React node.
    */
-  render?: (item: T) => React.ReactNode;
+  render?: (item: T, index?: number) => React.ReactNode;
   /**
    * A function that renders the title of the column.
    * @param title The title of the column.
